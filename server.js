@@ -12,7 +12,12 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// REGISTRO
+// --- IMPORTANTE: ESTO FALTA PARA QUE SE VEA LA PÁGINA ---
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+});
+
+// Ruta de Registro
 app.post('/registro', async (req, res) => {
     const { nombre, password, rol } = req.body;
     if (rol === 'admin' && password !== 'ponis_rositas') return res.status(401).json({error: "Clave admin incorrecta"});
@@ -28,7 +33,7 @@ app.post('/registro', async (req, res) => {
     }
 });
 
-// OBTENER DATOS (DIFERENCIADO)
+// Ruta para obtener datos
 app.get('/datos/:userId/:rol', async (req, res) => {
     const { userId, rol } = req.params;
     try {
@@ -42,11 +47,13 @@ app.get('/datos/:userId/:rol', async (req, res) => {
     } catch (err) { res.status(500).send(err); }
 });
 
-// ELIMINAR (SOLO ADMIN)
+// Ruta para eliminar
 app.delete('/eliminar/:id/:rol', async (req, res) => {
     if (req.params.rol !== 'admin') return res.status(403).send("No autorizado");
     await pool.query('DELETE FROM registros_banda WHERE id = $1', [req.params.id]);
     res.json({success: true});
 });
 
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 3000, () => {
+    console.log("Servidor listo en el puerto " + (process.env.PORT || 3000));
+});
