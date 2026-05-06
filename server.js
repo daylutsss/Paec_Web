@@ -1,59 +1,52 @@
-const express = require('express');
-const { Pool } = require('pg');
-const cors = require('cors');
-require('dotenv').config();
+// ... (mismo inicio de cors, express y pool)
 
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
-});
-
-// --- IMPORTANTE: ESTO FALTA PARA QUE SE VEA LA PÁGINA ---
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-});
-
-// Ruta de Registro
 app.post('/registro', async (req, res) => {
     const { nombre, password, rol } = req.body;
-    if (rol === 'admin' && password !== 'ponis_rositas') return res.status(401).json({error: "Clave admin incorrecta"});
     
+    if (rol === 'admin' && password !== 'ponis_rositas') {
+        return res.status(401).json({ error: "Clave maestra de admin incorrecta" });
+    }
+
     try {
-        const result = await pool.query(
-            'INSERT INTO usuarios (nombre, password, rol) VALUES ($1, $2, $3) RETURNING id, nombre, rol',
-            [nombre, password, rol]
-        );
-        res.json(result.rows[0]);
+        // 1. BUSCAR SI EL USUARIO YA EXISTE
+        const existe = await pool.query('SELECT * FROM usuarios WHERE nombre = $1', [nombre]);
+
+        if (existe.rows.length > 0) {
+            // EL USUARIO YA EXISTE -> INTENTAR LOGIN
+            const user = existe.rows[0];
+            if (user.password === password) {
+                // Contraseña correcta
+                return res.json(user);
+            } else {
+                // Contraseña incorrecta
+                return res.status(401).json({ error: "Este nombre de usuario ya está registrado con otra contraseña." });
+            }
+        } else {
+            // EL USUARIO NO EXISTE -> CREAR NUEVO REGISTRO
+            const nuevo = await pool.query(
+                'INSERT INTO usuarios (nombre, password, rol) VALUES ($1, $2, $3) RETURNING *',
+                [nombre, password, rol]
+            );
+            return res.json(nuevo.rows[0]);
+        }
     } catch (err) {
-        res.status(400).json({error: "Usuario ya existe"});
+        res.status(500).json({ error: "Error en el servidor" });
     }
 });
 
-// Ruta para obtener datos
-app.get('/datos/:userId/:rol', async (req, res) => {
-    const { userId, rol } = req.params;
+// NUEVA RUTA: Obtener lista de todos los estudiantes (Solo para el Admin)
+app.get('/admin/estudiantes', async (req, res) => {
     try {
-        let query = (rol === 'admin') 
-            ? 'SELECT * FROM registros_banda' 
-            : 'SELECT * FROM registros_banda WHERE usuario_id = $1';
-        let params = (rol === 'admin') ? [] : [userId];
-        
-        const result = await pool.query(query, params);
+        const result = await pool.query("SELECT id, nombre, rol FROM usuarios WHERE rol = 'estudiante'");
         res.json(result.rows);
     } catch (err) { res.status(500).send(err); }
 });
 
-// Ruta para eliminar
-app.delete('/eliminar/:id/:rol', async (req, res) => {
-    if (req.params.rol !== 'admin') return res.status(403).send("No autorizado");
-    await pool.query('DELETE FROM registros_banda WHERE id = $1', [req.params.id]);
-    res.json({success: true});
+// NUEVA RUTA: Eliminar estudiante (Elimina al usuario y sus plantas por el ON DELETE CASCADE)
+app.delete('/admin/usuario/:id', async (req, res) => {
+    const { id } = req.params;
+    await pool.query('DELETE FROM usuarios WHERE id = $1', [id]);
+    res.json({ success: true });
 });
 
-app.listen(process.env.PORT || 3000, () => {
-    console.log("Servidor listo en el puerto " + (process.env.PORT || 3000));
-});
+// ... (mantener rutas de datos y eliminar plantas)
