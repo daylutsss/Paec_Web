@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vida Saludable</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #333; margin: 0; }
+        .container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 300px; }
+        .grid-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
+        .option-card { background: white; padding: 50px; border-radius: 20px; cursor: pointer; transition: 0.3s; text-align: center; font-weight: bold; border: 2px solid transparent; }
+        .option-card:hover { border-color: #4CAF50; transform: translateY(-5px); }
+        .hidden { display: none; }
+        input, select { width: 100%; margin: 10px 0; padding: 10px; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: #4CAF50; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="login" class="card animate__animated animate__fadeIn">
+            <h2>Registro</h2>
+            <input type="text" id="nombre" placeholder="Nombre completo">
+            <input type="password" id="pass" placeholder="Contraseña">
+            <select id="rol">
+                <option value="estudiante">Estudiante</option>
+                <option value="admin">Administrador</option>
+            </select>
+            <button onclick="enviarRegistro()">Entrar</button>
+        </div>
+
+        <div id="dashboard" class="grid-dashboard hidden">
+            <div class="option-card animate__animated animate__fadeInLeft" onclick="verVida()">
+                🥗 Vida Saludable<br><small>Tips e IMC</small>
+            </div>
+            <div class="option-card animate__animated animate__fadeInRight" onclick="verBanda()">
+                🎸 Registro de la Banda<br><small>Tus Plantas</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userLogueado = null;
+
+        async function enviarRegistro() {
+            const data = {
+                nombre: document.getElementById('nombre').value,
+                password: document.getElementById('pass').value,
+                rol: document.getElementById('rol').value
+            };
+            
+            // Simulación de conexión a la API
+            // Aquí usarías fetch('tu-url-de-render/registro', ...)
+            
+            userLogueado = data; // Guardamos sesión temporal
+            
+            document.getElementById('login').classList.add('animate__fadeOutUp');
+            setTimeout(() => {
+                document.getElementById('login').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+            }, 500);
+        }
+
+        function verVida() {
+            alert("IMC: Peso / Altura^2\nConsejo: Bebe 2L de agua.");
+        }
+
+        function verBanda() {
+            alert(userLogueado.rol === 'admin' ? "Viendo todos los equipos..." : "Viendo mis plantas...");
+        }
+    </script>
+</body>
+</html>
