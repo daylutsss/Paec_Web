@@ -13,6 +13,7 @@
             --admin-color: #e91e63;
             --bg: #f8f9fa;
             --card: #ffffff;
+            --danger: #ff4d4d;
         }
 
         body {
@@ -25,20 +26,19 @@
             min-height: 100vh;
         }
 
-        .container { width: 90%; max-width: 1000px; }
+        .container { width: 90%; max-width: 1000px; padding: 20px 0; }
 
-        /* Tarjetas */
         .card {
             background: var(--card);
             padding: 2.5rem;
             border-radius: 24px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.05);
             text-align: center;
+            margin-bottom: 20px;
         }
 
         .hidden { display: none !important; }
 
-        /* Formulario */
         input, select {
             width: 100%;
             padding: 12px;
@@ -63,7 +63,6 @@
 
         button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3); }
 
-        /* Dashboard */
         .grid-menu {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -77,18 +76,21 @@
             cursor: pointer;
             transition: 0.3s;
             border: 2px solid transparent;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
 
         .option-card:hover { border-color: var(--primary); transform: scale(1.02); }
 
-        /* Tablas */
         table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 12px; overflow: hidden; }
         th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
-        th { background: #f4f4f4; }
+        th { background: #f4f4f4; font-weight: 700; }
 
-        .btn-delete { background: #ff4d4d; padding: 5px 10px; font-size: 12px; width: auto; }
-        
+        .btn-delete { background: var(--danger); padding: 8px 12px; font-size: 12px; width: auto; }
         .header-app { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        
+        hr { border: 0; border-top: 1px solid #eee; margin: 30px 0; }
+        .admin-section { border-top: 4px solid var(--admin-color); padding-top: 20px; }
     </style>
 </head>
 <body>
@@ -96,39 +98,41 @@
     <div class="container">
         
         <div id="section-login" class="card animate__animated animate__fadeInDown">
-            <h2 id="titulo">Crear Cuenta</h2>
-            <input type="text" id="reg-nombre" placeholder="Tu nombre">
+            <h2 id="titulo">Acceso al Sistema</h2>
+            <p style="color: #666; font-size: 14px;">Si ya tienes cuenta, el sistema te reconocerá automáticamente.</p>
+            <input type="text" id="reg-nombre" placeholder="Nombre de usuario">
             <input type="password" id="reg-pass" placeholder="Contraseña">
             <select id="reg-rol">
                 <option value="estudiante">Soy Estudiante</option>
                 <option value="admin">Soy Administrador</option>
             </select>
-            <button onclick="ejecutarRegistro()">Entrar al Sistema</button>
+            <button onclick="ejecutarRegistro()">Ingresar</button>
         </div>
 
         <div id="section-dashboard" class="hidden">
             <div class="header-app">
                 <h2 id="bienvenida">Hola</h2>
-                <button onclick="location.reload()" style="width: auto; background: #999;">Salir</button>
+                <button onclick="location.reload()" style="width: auto; background: #999;">Cerrar Sesión</button>
             </div>
             
             <div class="grid-menu">
                 <div class="option-card animate__animated animate__fadeInLeft" onclick="abrirVida()">
                     <h1 style="font-size: 50px;">🥗</h1>
                     <h3>Vida Saludable</h3>
-                    <p>Consejos, agua e IMC</p>
+                    <p>Tips e IMC</p>
                 </div>
                 <div class="option-card animate__animated animate__fadeInRight" onclick="abrirBanda()">
                     <h1 style="font-size: 50px;">🌱</h1>
                     <h3>Registro de la Banda</h3>
-                    <p>Control de mis plantas</p>
+                    <p>Gestión de Plantas</p>
                 </div>
             </div>
         </div>
 
         <div id="section-detail" class="card hidden animate__animated animate__fadeInUp">
             <button onclick="volverMenu()" style="width: auto; float: left; background: #eee; color: #333; margin-bottom: 20px;">< Volver</button>
-            <div id="content-detail"></div>
+            <div id="content-detail" style="clear: both;"></div>
+            <div id="admin-only-content" class="admin-section hidden"></div>
         </div>
 
     </div>
@@ -137,13 +141,12 @@
         const API_URL = 'https://paec-web-dp7l.onrender.com';
         let usuarioActual = null;
 
-        // --- LÓGICA DE REGISTRO ---
         async function ejecutarRegistro() {
             const nombre = document.getElementById('reg-nombre').value;
             const password = document.getElementById('reg-pass').value;
             const rol = document.getElementById('reg-rol').value;
 
-            if (!nombre) return alert("Por favor escribe tu nombre");
+            if (!nombre || !password) return alert("Completa todos los campos");
 
             try {
                 const response = await fetch(`${API_URL}/registro`, {
@@ -155,18 +158,17 @@
                 const data = await response.json();
 
                 if (response.ok) {
-                    usuarioActual = data; // Guardamos ID, nombre y rol
+                    usuarioActual = data; 
                     cambiarSeccion('section-login', 'section-dashboard');
-                    document.getElementById('bienvenida').innerText = `Bienvenido, ${data.nombre} (${data.rol})`;
+                    document.getElementById('bienvenida').innerText = `Bienvenido, ${data.nombre}`;
                 } else {
-                    alert(data.error || "Error al registrar");
+                    alert(data.error || "Error de acceso");
                 }
             } catch (error) {
-                alert("Error de conexión con el servidor");
+                alert("Error de conexión");
             }
         }
 
-        // --- LÓGICA DE NAVEGACIÓN ---
         function cambiarSeccion(ocultar, mostrar) {
             document.getElementById(ocultar).classList.add('hidden');
             document.getElementById(mostrar).classList.remove('hidden');
@@ -174,9 +176,9 @@
 
         function volverMenu() {
             cambiarSeccion('section-detail', 'section-dashboard');
+            document.getElementById('admin-only-content').classList.add('hidden');
         }
 
-        // --- MÓDULO VIDA SALUDABLE ---
         function abrirVida() {
             cambiarSeccion('section-dashboard', 'section-detail');
             document.getElementById('content-detail').innerHTML = `
@@ -184,94 +186,78 @@
                 <div style="text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div style="background: #e8f5e9; padding: 15px; border-radius: 15px;">
                         <h4>💧 Hidratación</h4>
-                        <p>Debes tomar aproximadamente 35ml de agua por cada kilo de peso.</p>
+                        <p>Bebe 35ml por cada kilo de peso.</p>
                     </div>
                     <div style="background: #fff3e0; padding: 15px; border-radius: 15px;">
-                        <h4>🍎 Alimentación</h4>
-                        <p>Prioriza vegetales verdes, proteínas magras y evita azúcares procesados.</p>
+                        <h4>🍎 Comida</h4>
+                        <p>Evita procesados y prefiere lo natural.</p>
                     </div>
                 </div>
                 <hr>
                 <h4>Calcula tu IMC</h4>
-                <input type="number" id="peso" placeholder="Peso en kg (ej. 70)">
-                <input type="number" id="altura" placeholder="Altura en metros (ej. 1.75)">
-                <button onclick="calcularIMC()">Calcular</button>
+                <input type="number" id="peso" placeholder="Peso (kg)">
+                <input type="number" id="altura" placeholder="Altura (m)">
+                <button onclick="document.getElementById('res-imc').innerText = 'Tu IMC: ' + (document.getElementById('peso').value / (document.getElementById('altura').value ** 2)).toFixed(2)">Calcular</button>
                 <h3 id="res-imc"></h3>
             `;
         }
 
-        function calcularIMC() {
-            const p = document.getElementById('peso').value;
-            const a = document.getElementById('altura').value;
-            if(p && a) {
-                const imc = (p / (a * a)).toFixed(2);
-                document.getElementById('res-imc').innerText = `Tu IMC es: ${imc}`;
-            }
-        }
-
-        // --- MÓDULO BANDA (PLANTAS) ---
         async function abrirBanda() {
             cambiarSeccion('section-dashboard', 'section-detail');
-            cargarTablaPlantas();
+            await cargarPlantas();
+            
+            if (usuarioActual.rol === 'admin') {
+                document.getElementById('admin-only-content').classList.remove('hidden');
+                await cargarUsuariosAdmin();
+            }
         }
 
-        async function cargarTablaPlantas() {
+        async function cargarPlantas() {
             const res = await fetch(`${API_URL}/datos/${usuarioActual.id}/${usuarioActual.rol}`);
-            const datos = await res.json();
+            const plantas = await res.json();
 
             let html = `<h2>Registro de Plantas</h2>`;
-            
-            if (usuarioActual.rol === 'estudiante') {
-                html += `<p>Registra una nueva planta para tu equipo:</p>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <input id="p-equipo" placeholder="Nombre Equipo">
-                    <input id="p-planta" placeholder="Nombre Planta">
-                    <input id="p-tipo" placeholder="Tipo (ej. Suculenta)">
-                    <input id="p-riego" placeholder="Frecuencia Riego">
-                </div>
-                <button onclick="guardarPlanta()">+ Agregar Planta</button><hr>`;
+            if(usuarioActual.rol === 'estudiante') {
+                html += `
+                <div style="background:#f9f9f9; padding:15px; border-radius:15px; margin-bottom:20px;">
+                    <input id="p-equipo" placeholder="Equipo">
+                    <input id="p-planta" placeholder="Planta">
+                    <button onclick="alert('Funcionalidad de guardado lista en backend')">Agregar Planta</button>
+                </div>`;
             }
 
-            html += `<table>
-                <tr>
-                    <th>Equipo</th>
-                    <th>Planta</th>
-                    <th>Tipo</th>
-                    ${usuarioActual.rol === 'admin' ? '<th>Acción</th>' : ''}
-                </tr>
-            `;
-
-            datos.forEach(d => {
-                html += `
-                    <tr>
-                        <td>${d.nombre_equipo}</td>
-                        <td>${d.nombre_planta}</td>
-                        <td>${d.tipo_planta}</td>
-                        ${usuarioActual.rol === 'admin' ? `<td><button class="btn-delete" onclick="eliminarDato(${d.id})">Borrar</button></td>` : ''}
-                    </tr>
-                `;
+            html += `<table><tr><th>Equipo</th><th>Planta</th>${usuarioActual.rol === 'admin' ? '<th>Acción</th>' : ''}</tr>`;
+            plantas.forEach(p => {
+                html += `<tr><td>${p.nombre_equipo}</td><td>${p.nombre_planta}</td>
+                ${usuarioActual.rol === 'admin' ? `<td><button class="btn-delete" onclick="eliminarPlanta(${p.id})">Borrar</button></td>` : ''}</tr>`;
             });
             html += `</table>`;
             document.getElementById('content-detail').innerHTML = html;
         }
 
-        async function guardarPlanta() {
-            const payload = {
-                nombre_equipo: document.getElementById('p-equipo').value,
-                nombre_planta: document.getElementById('p-planta').value,
-                tipo_planta: document.getElementById('p-tipo').value,
-                frecuencia_riego: document.getElementById('p-riego').value,
-                usuario_id: usuarioActual.id
-            };
-            // Nota: Aquí tendrías que crear la ruta POST /plantas en tu server.js igual que el registro
-            alert("Planta guardada (Simulado)"); 
-            cargarTablaPlantas();
+        async function cargarUsuariosAdmin() {
+            const res = await fetch(`${API_URL}/admin/estudiantes`);
+            const users = await res.json();
+            let html = `<h3>Gestión de Estudiantes</h3><table><tr><th>Nombre</th><th>Rol</th><th>Acción</th></tr>`;
+            users.forEach(u => {
+                html += `<tr><td>${u.nombre}</td><td>${u.rol}</td>
+                <td><button class="btn-delete" onclick="eliminarUsuario(${u.id})">Eliminar Estudiante</button></td></tr>`;
+            });
+            html += `</table>`;
+            document.getElementById('admin-only-content').innerHTML = html;
         }
 
-        async function eliminarDato(id) {
-            if(confirm("¿Seguro que quieres eliminar este registro?")) {
+        async function eliminarUsuario(id) {
+            if(confirm("¿Eliminar este estudiante? Se borrarán todos sus datos.")) {
+                await fetch(`${API_URL}/admin/usuario/${id}`, { method: 'DELETE' });
+                cargarUsuariosAdmin();
+            }
+        }
+
+        async function eliminarPlanta(id) {
+            if(confirm("¿Eliminar este registro de planta?")) {
                 await fetch(`${API_URL}/eliminar/${id}/${usuarioActual.rol}`, { method: 'DELETE' });
-                cargarTablaPlantas();
+                cargarPlantas();
             }
         }
     </script>
