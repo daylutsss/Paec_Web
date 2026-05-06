@@ -1,71 +1,278 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Vida Saludable</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vida Saludable & Banda 🌱</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: #333; margin: 0; }
-        .container { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); width: 300px; }
-        .grid-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px; }
-        .option-card { background: white; padding: 50px; border-radius: 20px; cursor: pointer; transition: 0.3s; text-align: center; font-weight: bold; border: 2px solid transparent; }
-        .option-card:hover { border-color: #4CAF50; transform: translateY(-5px); }
-        .hidden { display: none; }
-        input, select { width: 100%; margin: 10px 0; padding: 10px; border-radius: 5px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { background: #4CAF50; color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; cursor: pointer; }
+        :root {
+            --primary: #4CAF50;
+            --admin-color: #e91e63;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container { width: 90%; max-width: 1000px; }
+
+        /* Tarjetas */
+        .card {
+            background: var(--card);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+
+        .hidden { display: none !important; }
+
+        /* Formulario */
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            width: 100%;
+        }
+
+        button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3); }
+
+        /* Dashboard */
+        .grid-menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .option-card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .option-card:hover { border-color: var(--primary); transform: scale(1.02); }
+
+        /* Tablas */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; border-radius: 12px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f4f4f4; }
+
+        .btn-delete { background: #ff4d4d; padding: 5px 10px; font-size: 12px; width: auto; }
+        
+        .header-app { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <div id="login" class="card animate__animated animate__fadeIn">
-            <h2>Registro</h2>
-            <input type="text" id="nombre" placeholder="Nombre completo">
-            <input type="password" id="pass" placeholder="Contraseña">
-            <select id="rol">
-                <option value="estudiante">Estudiante</option>
-                <option value="admin">Administrador</option>
+        
+        <div id="section-login" class="card animate__animated animate__fadeInDown">
+            <h2 id="titulo">Crear Cuenta</h2>
+            <input type="text" id="reg-nombre" placeholder="Tu nombre">
+            <input type="password" id="reg-pass" placeholder="Contraseña">
+            <select id="reg-rol">
+                <option value="estudiante">Soy Estudiante</option>
+                <option value="admin">Soy Administrador</option>
             </select>
-            <button onclick="enviarRegistro()">Entrar</button>
+            <button onclick="ejecutarRegistro()">Entrar al Sistema</button>
         </div>
 
-        <div id="dashboard" class="grid-dashboard hidden">
-            <div class="option-card animate__animated animate__fadeInLeft" onclick="verVida()">
-                🥗 Vida Saludable<br><small>Tips e IMC</small>
+        <div id="section-dashboard" class="hidden">
+            <div class="header-app">
+                <h2 id="bienvenida">Hola</h2>
+                <button onclick="location.reload()" style="width: auto; background: #999;">Salir</button>
             </div>
-            <div class="option-card animate__animated animate__fadeInRight" onclick="verBanda()">
-                🎸 Registro de la Banda<br><small>Tus Plantas</small>
+            
+            <div class="grid-menu">
+                <div class="option-card animate__animated animate__fadeInLeft" onclick="abrirVida()">
+                    <h1 style="font-size: 50px;">🥗</h1>
+                    <h3>Vida Saludable</h3>
+                    <p>Consejos, agua e IMC</p>
+                </div>
+                <div class="option-card animate__animated animate__fadeInRight" onclick="abrirBanda()">
+                    <h1 style="font-size: 50px;">🌱</h1>
+                    <h3>Registro de la Banda</h3>
+                    <p>Control de mis plantas</p>
+                </div>
             </div>
         </div>
+
+        <div id="section-detail" class="card hidden animate__animated animate__fadeInUp">
+            <button onclick="volverMenu()" style="width: auto; float: left; background: #eee; color: #333; margin-bottom: 20px;">< Volver</button>
+            <div id="content-detail"></div>
+        </div>
+
     </div>
 
     <script>
-        let userLogueado = null;
+        const API_URL = 'https://paec-web-dp7l.onrender.com';
+        let usuarioActual = null;
 
-        async function enviarRegistro() {
-            const data = {
-                nombre: document.getElementById('nombre').value,
-                password: document.getElementById('pass').value,
-                rol: document.getElementById('rol').value
+        // --- LÓGICA DE REGISTRO ---
+        async function ejecutarRegistro() {
+            const nombre = document.getElementById('reg-nombre').value;
+            const password = document.getElementById('reg-pass').value;
+            const rol = document.getElementById('reg-rol').value;
+
+            if (!nombre) return alert("Por favor escribe tu nombre");
+
+            try {
+                const response = await fetch(`${API_URL}/registro`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nombre, password, rol })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    usuarioActual = data; // Guardamos ID, nombre y rol
+                    cambiarSeccion('section-login', 'section-dashboard');
+                    document.getElementById('bienvenida').innerText = `Bienvenido, ${data.nombre} (${data.rol})`;
+                } else {
+                    alert(data.error || "Error al registrar");
+                }
+            } catch (error) {
+                alert("Error de conexión con el servidor");
+            }
+        }
+
+        // --- LÓGICA DE NAVEGACIÓN ---
+        function cambiarSeccion(ocultar, mostrar) {
+            document.getElementById(ocultar).classList.add('hidden');
+            document.getElementById(mostrar).classList.remove('hidden');
+        }
+
+        function volverMenu() {
+            cambiarSeccion('section-detail', 'section-dashboard');
+        }
+
+        // --- MÓDULO VIDA SALUDABLE ---
+        function abrirVida() {
+            cambiarSeccion('section-dashboard', 'section-detail');
+            document.getElementById('content-detail').innerHTML = `
+                <h2>Guía de Vida Saludable</h2>
+                <div style="text-align: left; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div style="background: #e8f5e9; padding: 15px; border-radius: 15px;">
+                        <h4>💧 Hidratación</h4>
+                        <p>Debes tomar aproximadamente 35ml de agua por cada kilo de peso.</p>
+                    </div>
+                    <div style="background: #fff3e0; padding: 15px; border-radius: 15px;">
+                        <h4>🍎 Alimentación</h4>
+                        <p>Prioriza vegetales verdes, proteínas magras y evita azúcares procesados.</p>
+                    </div>
+                </div>
+                <hr>
+                <h4>Calcula tu IMC</h4>
+                <input type="number" id="peso" placeholder="Peso en kg (ej. 70)">
+                <input type="number" id="altura" placeholder="Altura en metros (ej. 1.75)">
+                <button onclick="calcularIMC()">Calcular</button>
+                <h3 id="res-imc"></h3>
+            `;
+        }
+
+        function calcularIMC() {
+            const p = document.getElementById('peso').value;
+            const a = document.getElementById('altura').value;
+            if(p && a) {
+                const imc = (p / (a * a)).toFixed(2);
+                document.getElementById('res-imc').innerText = `Tu IMC es: ${imc}`;
+            }
+        }
+
+        // --- MÓDULO BANDA (PLANTAS) ---
+        async function abrirBanda() {
+            cambiarSeccion('section-dashboard', 'section-detail');
+            cargarTablaPlantas();
+        }
+
+        async function cargarTablaPlantas() {
+            const res = await fetch(`${API_URL}/datos/${usuarioActual.id}/${usuarioActual.rol}`);
+            const datos = await res.json();
+
+            let html = `<h2>Registro de Plantas</h2>`;
+            
+            if (usuarioActual.rol === 'estudiante') {
+                html += `<p>Registra una nueva planta para tu equipo:</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input id="p-equipo" placeholder="Nombre Equipo">
+                    <input id="p-planta" placeholder="Nombre Planta">
+                    <input id="p-tipo" placeholder="Tipo (ej. Suculenta)">
+                    <input id="p-riego" placeholder="Frecuencia Riego">
+                </div>
+                <button onclick="guardarPlanta()">+ Agregar Planta</button><hr>`;
+            }
+
+            html += `<table>
+                <tr>
+                    <th>Equipo</th>
+                    <th>Planta</th>
+                    <th>Tipo</th>
+                    ${usuarioActual.rol === 'admin' ? '<th>Acción</th>' : ''}
+                </tr>
+            `;
+
+            datos.forEach(d => {
+                html += `
+                    <tr>
+                        <td>${d.nombre_equipo}</td>
+                        <td>${d.nombre_planta}</td>
+                        <td>${d.tipo_planta}</td>
+                        ${usuarioActual.rol === 'admin' ? `<td><button class="btn-delete" onclick="eliminarDato(${d.id})">Borrar</button></td>` : ''}
+                    </tr>
+                `;
+            });
+            html += `</table>`;
+            document.getElementById('content-detail').innerHTML = html;
+        }
+
+        async function guardarPlanta() {
+            const payload = {
+                nombre_equipo: document.getElementById('p-equipo').value,
+                nombre_planta: document.getElementById('p-planta').value,
+                tipo_planta: document.getElementById('p-tipo').value,
+                frecuencia_riego: document.getElementById('p-riego').value,
+                usuario_id: usuarioActual.id
             };
-            
-            // Simulación de conexión a la API
-            // Aquí usarías fetch('tu-url-de-render/registro', ...)
-            
-            userLogueado = data; // Guardamos sesión temporal
-            
-            document.getElementById('login').classList.add('animate__fadeOutUp');
-            setTimeout(() => {
-                document.getElementById('login').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-            }, 500);
+            // Nota: Aquí tendrías que crear la ruta POST /plantas en tu server.js igual que el registro
+            alert("Planta guardada (Simulado)"); 
+            cargarTablaPlantas();
         }
 
-        function verVida() {
-            alert("IMC: Peso / Altura^2\nConsejo: Bebe 2L de agua.");
-        }
-
-        function verBanda() {
-            alert(userLogueado.rol === 'admin' ? "Viendo todos los equipos..." : "Viendo mis plantas...");
+        async function eliminarDato(id) {
+            if(confirm("¿Seguro que quieres eliminar este registro?")) {
+                await fetch(`${API_URL}/eliminar/${id}/${usuarioActual.rol}`, { method: 'DELETE' });
+                cargarTablaPlantas();
+            }
         }
     </script>
 </body>
